@@ -51,10 +51,10 @@ export default function Analytics() {
           <div className="section-title">カテゴリ別</div>
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
-              <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}>
+              <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} ${Math.round((percent as number) * 100)}%`}>
                 {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
-              <Tooltip formatter={(v: number) => `¥${v.toLocaleString()}`} />
+              <Tooltip formatter={(value) => `¥${(value as number).toLocaleString()}`} />
             </PieChart>
           </ResponsiveContainer>
           <div className="section-title">カテゴリ内訳</div>
@@ -71,8 +71,8 @@ export default function Analytics() {
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={barData}>
           <XAxis dataKey="name" />
-          <YAxis tickFormatter={(v: number) => `¥${(v / 1000).toFixed(0)}k`} />
-          <Tooltip formatter={(v: number) => `¥${v.toLocaleString()}`} />
+          <YAxis tickFormatter={(v) => `¥${((v as number) / 1000).toFixed(0)}k`} />
+          <Tooltip formatter={(value) => `¥${(value as number).toLocaleString()}`} />
           <Bar dataKey="total" fill="#4CAF50" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
