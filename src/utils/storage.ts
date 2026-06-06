@@ -1,6 +1,7 @@
 import type { Transaction } from '../types'
 
 const KEY = 'kakeibo_transactions'
+const MAPPING_KEY = 'kakeibo_category_mapping'
 
 export function getTransactions(): Transaction[] {
   try {
@@ -9,13 +10,6 @@ export function getTransactions(): Transaction[] {
   } catch {
     return []
   }
-}
-
-export function getMonthlyTransactions(year: number, month: number): Transaction[] {
-  return getTransactions().filter(t => {
-    const d = new Date(t.date)
-    return d.getFullYear() === year && d.getMonth() + 1 === month
-  })
 }
 
 export function saveTransactions(transactions: Transaction[]): void {
@@ -34,6 +28,13 @@ export function updateTransaction(updated: Transaction): void {
   saveTransactions(getTransactions().map(t => t.id === updated.id ? updated : t))
 }
 
+export function getMonthlyTransactions(year: number, month: number): Transaction[] {
+  return getTransactions().filter(t => {
+    const d = new Date(t.date)
+    return d.getFullYear() === year && d.getMonth() + 1 === month
+  })
+}
+
 export function exportJSON(): void {
   const blob = new Blob([JSON.stringify(getTransactions(), null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
@@ -42,4 +43,27 @@ export function exportJSON(): void {
   a.download = `kakeibo_backup_${new Date().toISOString().slice(0, 10)}.json`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+export function getCategoryMapping(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(MAPPING_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function saveCategoryMapping(mapping: Record<string, string>): void {
+  localStorage.setItem(MAPPING_KEY, JSON.stringify(mapping))
+}
+
+export function learnCategory(shopName: string, category: string): void {
+  const mapping = getCategoryMapping()
+  mapping[shopName] = category
+  saveCategoryMapping(mapping)
+}
+
+export function getUncategorized(): Transaction[] {
+  return getTransactions().filter(t => t.category === 'other')
 }
