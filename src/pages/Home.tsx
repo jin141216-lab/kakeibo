@@ -65,7 +65,7 @@ export default function Home() {
         <p className="empty">まだ取引がありません</p>
       )}
       <button className="export-btn" onClick={exportJSON}>バックアップ</button>
-      <Link to="/add" className="fab">+</Link>
+
     </div>
   )
 }

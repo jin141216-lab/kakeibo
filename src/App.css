@@ -7,7 +7,7 @@ body {
   margin: 0 auto;
 }
 
-.app { padding-bottom: 70px; }
+.app { padding-bottom: 80px; }
 .page { padding: 16px; }
 
 .header {
@@ -102,23 +102,6 @@ body {
   cursor: pointer;
 }
 
-.fab {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  background: #4CAF50;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
 .nav {
   position: fixed;
   bottom: 0;
@@ -130,7 +113,9 @@ body {
   border-top: 1px solid #eee;
   display: flex;
   justify-content: space-around;
-  padding: 8px 0;
+  align-items: flex-end;
+  padding: 0 0 8px 0;
+  height: 70px;
 }
 .nav-item {
   display: flex;
@@ -140,9 +125,28 @@ body {
   font-size: 11px;
   color: #aaa;
   text-decoration: none;
-  padding: 4px 12px;
+  padding: 8px 12px 0;
+  flex: 1;
 }
 .nav-item.active { color: #4CAF50; }
+
+.nav-fab {
+  width: 56px;
+  height: 56px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 28px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
 
 .amount-input-wrap {
   display: flex;
@@ -219,21 +223,4 @@ body {
   font-weight: 600;
   cursor: pointer;
   margin-top: 16px;
-}
-
-.nav-fab {
-  width: 56px;
-  height: 56px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 28px;
-  cursor: pointer;
-  margin-top: -20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
