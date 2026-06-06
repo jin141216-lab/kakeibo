@@ -37,10 +37,6 @@ export default function Analytics() {
     return { name: `${m}月`, total }
   }).reverse()
 
-  const tooltipFormatter = (value: unknown) => `¥${(value as number).toLocaleString()}`
-  const yAxisFormatter = (value: unknown) => `¥${((value as number) / 1000).toFixed(0)}k`
-  const labelFormatter = (name: unknown, percent: unknown) => `${name} ${Math.round((percent as number) * 100)}%`
-
   return (
     <div className="page">
       <div className="header">
@@ -62,11 +58,14 @@ export default function Analytics() {
                 cx="50%"
                 cy="50%"
                 outerRadius={90}
-                label={(props) => labelFormatter(props.name, props.percent)}
+                label={(props) => {
+                  const pct = props.percent ?? 0
+                  return `${props.name} ${Math.round(pct * 100)}%`
+                }}
               >
                 {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
-              <Tooltip formatter={tooltipFormatter} />
+              <Tooltip formatter={(value) => [`¥${Number(value).toLocaleString()}`, '']} />
             </PieChart>
           </ResponsiveContainer>
           <div className="section-title">カテゴリ内訳</div>
@@ -83,8 +82,8 @@ export default function Analytics() {
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={barData}>
           <XAxis dataKey="name" />
-          <YAxis tickFormatter={yAxisFormatter} />
-          <Tooltip formatter={tooltipFormatter} />
+          <YAxis tickFormatter={(v) => `¥${(Number(v) / 1000).toFixed(0)}k`} />
+          <Tooltip formatter={(value) => [`¥${Number(value).toLocaleString()}`, '']} />
           <Bar dataKey="total" fill="#4CAF50" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
