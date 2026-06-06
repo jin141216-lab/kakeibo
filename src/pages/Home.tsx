@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { getMonthlyTransactions, exportJSON } from '../utils/storage'
 import type { Transaction } from '../types'
 import { CATEGORY_CONFIG, PAYMENT_CONFIG } from '../types'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
 export default function Home() {
   const now = new Date()
@@ -38,6 +38,21 @@ export default function Home() {
     color: cfg.color,
   })).filter(d => d.value > 0)
 
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: {
+    cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, percent: number
+  }) => {
+    if ((percent ?? 0) < 0.06) return null
+    const RADIAN = Math.PI / 180
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+    const x = cx + radius * Math.cos(-midAngle * RADIAN)
+    const y = cy + radius * Math.sin(-midAngle * RADIAN)
+    return (
+      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600}>
+        {`${Math.round((percent ?? 0) * 100)}%`}
+      </text>
+    )
+  }
+
   return (
     <div className="page">
       <div className="header">
@@ -45,10 +60,12 @@ export default function Home() {
         <h1>{year}年{month}月</h1>
         <button onClick={nextMonth}>&#8250;</button>
       </div>
+
       <div className="total-card">
         <p className="total-label">今月の支出</p>
         <p className="total-amount">¥{total.toLocaleString()}</p>
       </div>
+
       <div className="payment-grid">
         {(Object.entries(byPayment) as [keyof typeof byPayment, number][]).map(([key, amt]) => (
           <div key={key} className="payment-card">
@@ -57,6 +74,43 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      {pieData.length > 0 && (
+        <div style={{ background: 'white', borderRadius: '16px', padding: '16px', marginBottom: '8px' }}>
+          <div className="section-title" style={{ margin: '0 0 8px 0' }}>カテゴリ別割合</div>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={90}
+                innerRadius={40}
+                labelLine={false}
+                label={renderCustomLabel}
+              >
+                {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Pie>
+              <Tooltip formatter={(value) => [`¥${Number(value).toLocaleString()}`, '']} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+            {pieData.map(d => (
+              <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: d.color, flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: '13px', color: '#444' }}>{d.name}</span>
+                <span style={{ fontSize: '13px', fontWeight: 600 }}>¥{d.value.toLocaleString()}</span>
+                <span style={{ fontSize: '12px', color: '#aaa', minWidth: '36px', textAlign: 'right' }}>
+                  {total > 0 ? `${Math.round(d.value / total * 100)}%` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="section-title">最近の取引</div>
       {transactions.slice(0, 5).map(t => (
         <div key={t.id} className="transaction-row">
@@ -71,41 +125,8 @@ export default function Home() {
       {transactions.length === 0 && (
         <p className="empty">まだ取引がありません</p>
       )}
-      <button className="export-btn" onClick={exportJSON}>バックアップ</button>
 
-      {pieData.length > 0 && (
-        <>
-          <div className="section-title">カテゴリ別割合</div>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label={(props) => {
-                  const pct = props.percent ?? 0
-                  if (pct < 0.05) return ''
-                  return `${Math.round(pct * 100)}%`
-                }}
-              >
-                {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip formatter={(value) => [`¥${Number(value).toLocaleString()}`, '']} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-            {pieData.map(d => (
-              <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: d.color, display: 'inline-block' }} />
-                <span style={{ color: '#666' }}>{d.name}</span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      <button className="export-btn" onClick={exportJSON}>バックアップ</button>
     </div>
   )
 }
