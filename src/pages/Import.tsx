@@ -5,18 +5,20 @@ import type { Category, PaymentMethod } from '../types'
 import { CATEGORY_CONFIG } from '../types'
 
 const KEYWORD_MAP: Record<string, Category> = {
-  'マクドナルド': 'dining', 'マック': 'dining', 'すき家': 'dining', '吉野家': 'dining',
-  'まつや': 'dining', '松屋': 'dining', 'かすうどん': 'dining', 'そば': 'dining',
-  'うどん': 'dining', '食堂': 'dining', '焼肉': 'dining', '居酒屋': 'dining',
-  'スターバックス': 'dining', 'スタバ': 'dining', 'カフェ': 'dining',
+  'マクドナルド': 'food', 'マック': 'food', 'すき家': 'food', '吉野家': 'food',
+  'かすうどん': 'food', 'そば': 'food', 'うどん': 'food', '食堂': 'food',
+  '焼肉': 'food', '居酒屋': 'food', 'スターバックス': 'food', 'スタバ': 'food',
+  'カフェ': 'food', 'レストラン': 'food', '松屋': 'food', 'まつや': 'food',
   'セブン': 'food', 'ローソン': 'food', 'ファミマ': 'food', 'ファミリーマート': 'food',
   'イオン': 'food', 'スーパー': 'food',
-  'Netflix': 'subscription', 'Spotify': 'subscription', 'アマゾン': 'subscription',
-  'AMAZON': 'subscription', 'amazon': 'subscription', 'プライム': 'subscription',
-  '楽天モバイル': 'telecom', 'ドコモ': 'telecom', 'au': 'telecom', 'ソフトバンク': 'telecom',
-  '薬': 'medical', 'クリニック': 'medical', '病院': 'medical', 'ドラッグ': 'medical',
+  'Netflix': 'subscription', 'Spotify': 'subscription', 'プライム': 'subscription',
+  'AMAZON': 'subscription', 'amazon': 'subscription', 'アマゾン': 'subscription',
+  '楽天モバイル': 'utility', 'ドコモ': 'utility', 'au': 'utility', 'ソフトバンク': 'utility',
+  'ガス': 'utility', '水道': 'utility', '電気': 'utility', '東京ガス': 'utility',
+  '電力': 'utility', '光熱': 'utility',
   '電車': 'transport', 'バス': 'transport', 'タクシー': 'transport', 'サイクリング': 'transport',
-  'ガス': 'telecom', '水道': 'telecom', '電気': 'telecom', '東京ガス': 'telecom',
+  '薬': 'daily', 'ドラッグ': 'daily', 'クリニック': 'fixed', '病院': 'fixed',
+  '保険': 'fixed', '家賃': 'fixed', 'ローン': 'fixed',
 }
 
 function guessCategory(shopName: string): Category {
@@ -25,7 +27,7 @@ function guessCategory(shopName: string): Category {
   for (const [keyword, category] of Object.entries(KEYWORD_MAP)) {
     if (shopName.includes(keyword)) return category
   }
-  return 'other'
+  return 'uncategorized'
 }
 
 function parseAmount(str: string): number {

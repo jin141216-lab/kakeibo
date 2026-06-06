@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getUncategorized, updateTransaction, learnCategory } from '../utils/storage'
+import { getTransactions, updateTransaction, learnCategory } from '../utils/storage'
 import type { Transaction, Category } from '../types'
 import { CATEGORY_CONFIG } from '../types'
 
@@ -7,13 +7,16 @@ export default function Categorize() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [selected, setSelected] = useState<Transaction | null>(null)
 
-  const load = () => setTransactions(getUncategorized())
+  const load = () => {
+    const all = getTransactions()
+    setTransactions(all.filter(t => t.category === 'uncategorized' || t.category === 'other'))
+  }
 
   useEffect(() => { load() }, [])
 
   const handleSave = (category: Category) => {
     if (!selected) return
-    learnCategory(selected.shopName || '', category)
+    if (selected.shopName) learnCategory(selected.shopName, category)
     updateTransaction({ ...selected, category })
     setSelected(null)
     load()
@@ -33,9 +36,9 @@ export default function Categorize() {
             <small>{selected.date} · ¥{selected.amount.toLocaleString()}</small>
           </div>
         </div>
-        <div className="section-title">このお店のカテゴリ（以降自動分類されます）</div>
+        <div className="section-title">以降このお店は自動で同じカテゴリになります</div>
         <div className="category-grid">
-          {(Object.entries(CATEGORY_CONFIG) as [Category, typeof CATEGORY_CONFIG[Category]][]).map(([key, cfg]) => (
+          {(Object.entries(CATEGORY_CONFIG) as [Category, typeof CATEGORY_CONFIG[Category]][]).filter(([key]) => key !== 'uncategorized').map(([key, cfg]) => (
             <button
               key={key}
               className="category-btn"
@@ -65,7 +68,7 @@ export default function Categorize() {
               onClick={() => setSelected(t)}
               style={{ cursor: 'pointer' }}
             >
-              <span className="t-icon">📦</span>
+              <span className="t-icon">{CATEGORY_CONFIG[t.category].icon}</span>
               <div className="t-info">
                 <span>{t.shopName || 'unknown'}</span>
                 <small>{t.date} · ¥{t.amount.toLocaleString()}</small>
