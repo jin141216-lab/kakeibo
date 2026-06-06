@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { getMonthlyTransactions, exportJSON } from '../utils/storage'
 import type { Transaction } from '../types'
 import { CATEGORY_CONFIG, PAYMENT_CONFIG } from '../types'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function Home() {
   const now = new Date()
@@ -30,6 +31,12 @@ export default function Home() {
     if (month === 12) { setYear(y => y + 1); setMonth(1) }
     else setMonth(m => m + 1)
   }
+
+  const pieData = Object.entries(CATEGORY_CONFIG).map(([key, cfg]) => ({
+    name: cfg.label,
+    value: transactions.filter(t => t.category === key).reduce((s, t) => s + t.amount, 0),
+    color: cfg.color,
+  })).filter(d => d.value > 0)
 
   return (
     <div className="page">
@@ -66,6 +73,39 @@ export default function Home() {
       )}
       <button className="export-btn" onClick={exportJSON}>バックアップ</button>
 
+      {pieData.length > 0 && (
+        <>
+          <div className="section-title">カテゴリ別割合</div>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label={(props) => {
+                  const pct = props.percent ?? 0
+                  if (pct < 0.05) return ''
+                  return `${Math.round(pct * 100)}%`
+                }}
+              >
+                {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Pie>
+              <Tooltip formatter={(value) => [`¥${Number(value).toLocaleString()}`, '']} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+            {pieData.map(d => (
+              <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: d.color, display: 'inline-block' }} />
+                <span style={{ color: '#666' }}>{d.name}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
