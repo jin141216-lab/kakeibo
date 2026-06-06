@@ -10,18 +10,16 @@ import './App.css'
 function Nav() {
   const location = useLocation()
   const navigate = useNavigate()
-
   const isActive = (path: string) => location.pathname === path
-
   return (
     <nav className="nav">
       <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
         <span>🏠</span>
         <span>ホーム</span>
       </Link>
-      <Link to="/analytics" className={`nav-item ${isActive('/analytics') ? 'active' : ''}`}>
-        <span>📊</span>
-        <span>分析</span>
+      <Link to="/transactions" className={`nav-item ${isActive('/transactions') ? 'active' : ''}`}>
+        <span>📋</span>
+        <span>明細</span>
       </Link>
       <button className="nav-fab" onClick={() => navigate('/add')}>
         <span>＋</span>

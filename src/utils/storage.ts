@@ -1,12 +1,23 @@
-import type { Transaction } from '../types'
+import type { Transaction, Category } from '../types'
 
 const KEY = 'kakeibo_transactions'
 const MAPPING_KEY = 'kakeibo_category_mapping'
 
+const CATEGORY_MIGRATION: Record<string, Category> = {
+  dining: 'food',
+  telecom: 'utility',
+  medical: 'fixed',
+}
+
+function migrateCategory(category: string): Category {
+  return (CATEGORY_MIGRATION[category] || category) as Category
+}
+
 export function getTransactions(): Transaction[] {
   try {
     const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : []
+    const data: Transaction[] = raw ? JSON.parse(raw) : []
+    return data.map(t => ({ ...t, category: migrateCategory(t.category) }))
   } catch {
     return []
   }
@@ -65,5 +76,5 @@ export function learnCategory(shopName: string, category: string): void {
 }
 
 export function getUncategorized(): Transaction[] {
-  return getTransactions().filter(t => t.category === 'other')
+  return getTransactions().filter(t => t.category === 'uncategorized')
 }
